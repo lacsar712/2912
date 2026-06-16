@@ -4,6 +4,7 @@
 const MonitorPage = {
     refreshInterval: null,
     currentPage: 1,
+    supplierStats: null,
 
     init() {
         this.loadDashboard();
@@ -13,9 +14,18 @@ const MonitorPage = {
 
     async loadDashboard() {
         try {
-            const response = await ProductionService.getDashboard();
-            if (response.code === 200) {
-                this.renderDashboard(response.data);
+            const [prodResponse, supplierResponse] = await Promise.all([
+                ProductionService.getDashboard(),
+                SupplierService.getDashboardStats()
+            ]);
+
+            if (prodResponse.code === 200) {
+                const data = prodResponse.data;
+                if (supplierResponse.code === 200) {
+                    data.supplier_stats = supplierResponse.data;
+                    this.supplierStats = supplierResponse.data;
+                }
+                this.renderDashboard(data);
             }
         } catch (error) {
             console.error('加载监控数据失败:', error);
@@ -57,6 +67,22 @@ const MonitorPage = {
                     <div class="stat-card-value">${data.tasks.in_progress}/${data.tasks.total}</div>
                     <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
                         进行中/总计
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🏢</div>
+                    <div class="stat-card-title">本月新增供应商</div>
+                    <div class="stat-card-value">${data.supplier_stats?.new_suppliers_this_month || 0}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                        <a href="#" onclick="App.navigate('supplier'); return false;" style="color: var(--primary-color);">查看全部 →</a>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">📄</div>
+                    <div class="stat-card-title">即将到期合同</div>
+                    <div class="stat-card-value">${data.supplier_stats?.expiring_contracts?.length || 0}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                        15天内到期
                     </div>
                 </div>
             </div>
@@ -130,10 +156,66 @@ const MonitorPage = {
                     </div>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 class="card-title">📄 即将到期合同 Top 5</h3>
+                    <a href="#" onclick="App.navigate('supplier'); return false;" style="font-size: 12px; color: var(--primary-color);">查看全部 →</a>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    ${this.renderExpiringContracts(data.supplier_stats?.expiring_contracts || [])}
+                </div>
+            </div>
         `;
 
         this.loadProductionLines();
         this.loadSensorData();
+    },
+
+    renderExpiringContracts(contracts) {
+        if (!contracts || contracts.length === 0) {
+            return `
+                <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <div style="font-size: 32px; margin-bottom: 8px;">✅</div>
+                    <div>暂无即将到期的合同</div>
+                </div>
+            `;
+        }
+
+        return `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>合同编号</th>
+                        <th>供应商</th>
+                        <th>开始日期</th>
+                        <th>结束日期</th>
+                        <th>剩余天数</th>
+                        <th>合同金额</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${contracts.map(c => {
+                        const today = new Date();
+                        const endDate = new Date(c.end_date);
+                        const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                        const isUrgent = daysLeft <= 7;
+                        return `
+                            <tr class="${isUrgent ? 'table-danger' : ''}">
+                                <td>${Validator.sanitize(c.contract_code)}</td>
+                                <td>${Validator.sanitize(c.supplier_name || '-')}</td>
+                                <td>${c.start_date || '-'}</td>
+                                <td>${c.end_date || '-'}</td>
+                                <td style="font-weight: bold; color: ${isUrgent ? 'var(--danger-color)' : 'var(--warning-color)'};">
+                                    ${daysLeft} 天
+                                </td>
+                                <td>¥${Formatter.formatNumber(c.contract_amount || 0)}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
     },
 
     renderEquipmentStatus(production) {

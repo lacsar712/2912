@@ -10,7 +10,8 @@ const App = {
         tasks: TasksPage,
         alerts: AlertsPage,
         simulation: SimulationPage,
-        inventory: InventoryPage
+        inventory: InventoryPage,
+        supplier: SupplierPage
     },
 
     init() {
@@ -88,7 +89,8 @@ const App = {
             tasks: '生产任务',
             alerts: '告警中心',
             simulation: '数据模拟',
-            inventory: '物料库存'
+            inventory: '物料库存',
+            supplier: '供应商管理'
         };
         document.getElementById('pageTitle').textContent = titles[page] || page;
         document.title = `${titles[page] || page} - 生产线监控系统`;

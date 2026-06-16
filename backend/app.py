@@ -1,6 +1,9 @@
 """
 生产线监控系统 - 应用入口
 """
+import threading
+import time
+from datetime import datetime
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -17,9 +20,56 @@ from controllers.production_controller import production_bp
 from controllers.simulation_controller import simulation_bp
 from controllers.alert_controller import alert_bp
 from controllers.inventory_controller import inventory_bp
+from controllers.supplier_controller import supplier_bp
 
 # 请求限制器 - 默认配置
 limiter = None
+
+# 调度器控制标志
+scheduler_running = False
+
+
+def start_contract_expiry_scheduler(app):
+    """启动合同到期检查调度器（每天凌晨1点执行）"""
+    global scheduler_running
+
+    if scheduler_running:
+        return
+
+    scheduler_running = True
+
+    def scheduler_loop():
+        from services.supplier_service import ContractService
+        from utils.logger import logger
+
+        while scheduler_running:
+            try:
+                now = datetime.now()
+                next_run = now.replace(hour=1, minute=0, second=0, microsecond=0)
+                if next_run <= now:
+                    next_run = next_run.replace(day=next_run.day + 1)
+
+                sleep_seconds = (next_run - now).total_seconds()
+                logger.info(f"[合同到期调度器] 下次执行时间: {next_run.strftime('%Y-%m-%d %H:%M:%S')}，等待 {sleep_seconds:.0f} 秒")
+
+                time.sleep(min(sleep_seconds, 3600))
+
+                current_time = datetime.now()
+                if current_time >= next_run:
+                    with app.app_context():
+                        try:
+                            alert_count = ContractService.check_contract_expiry()
+                            logger.info(f"[合同到期调度器] 执行完成，生成 {alert_count} 条告警")
+                        except Exception as e:
+                            logger.error(f"[合同到期调度器] 执行出错: {str(e)}")
+            except Exception as e:
+                from utils.logger import logger
+                logger.error(f"[合同到期调度器] 循环出错: {str(e)}")
+                time.sleep(60)
+
+    scheduler_thread = threading.Thread(target=scheduler_loop, daemon=True)
+    scheduler_thread.start()
+    return scheduler_thread
 
 
 def create_app(config_class=Config):
@@ -63,6 +113,12 @@ def create_app(config_class=Config):
     app.register_blueprint(simulation_bp, url_prefix='/api/simulation')
     app.register_blueprint(alert_bp, url_prefix='/api/alerts')
     app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
+    app.register_blueprint(supplier_bp, url_prefix='/api/supplier')
+
+    # 启动合同到期检查调度器
+    if not app.config.get('TESTING'):
+        with app.app_context():
+            start_contract_expiry_scheduler(app)
 
     # 健康检查
     @app.route('/health')

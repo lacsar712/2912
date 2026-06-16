@@ -21,6 +21,11 @@ from .inventory import (
     StockOut,
     StockFlow
 )
+from .supplier import (
+    Supplier,
+    Contract,
+    MonthlyRating
+)
 
 __all__ = [
     'BaseModel',
@@ -38,5 +43,8 @@ __all__ = [
     'Material',
     'StockIn',
     'StockOut',
-    'StockFlow'
+    'StockFlow',
+    'Supplier',
+    'Contract',
+    'MonthlyRating'
 ]
