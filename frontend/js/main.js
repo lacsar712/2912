@@ -16,7 +16,11 @@ const App = {
         'quality-orders': QualityOrdersPage,
         'quality-order-form': QualityOrderFormPage,
         'quality-analysis': QualityAnalysisPage,
-        'repair-orders': RepairOrdersPage
+        'repair-orders': RepairOrdersPage,
+        'process-templates': ProcessTemplatesPage,
+        'process-compare': ProcessComparePage,
+        'process-audit': ProcessAuditPage,
+        'process-deploy': ProcessDeployPage
     },
 
     init() {
@@ -88,7 +92,9 @@ const App = {
             const itemPage = item.dataset.page;
             const isQuality = itemPage === 'quality-orders';
             const isQualitySubpage = isQuality && basePage.startsWith('quality-');
-            item.classList.toggle('active', itemPage === basePage || isQualitySubpage);
+            const isProcess = itemPage === 'process-templates';
+            const isProcessSubpage = isProcess && basePage.startsWith('process-');
+            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage);
         });
 
         const titles = {
@@ -104,7 +110,11 @@ const App = {
             'quality-orders': '质检单管理',
             'quality-order-form': '质检单录入',
             'quality-analysis': '不合格分析',
-            'repair-orders': '维修工单'
+            'repair-orders': '维修工单',
+            'process-templates': '工艺模板',
+            'process-compare': '版本对比',
+            'process-audit': '审核工作台',
+            'process-deploy': '下发记录'
         };
         const pageTitle = titles[basePage] || page;
         document.getElementById('pageTitle').textContent = pageTitle;

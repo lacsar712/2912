@@ -39,6 +39,12 @@ from .repair import (
     RepairProcess,
     RepairAcceptance
 )
+from .process import (
+    ProcessTemplate,
+    ProcessTemplateParam,
+    ProcessAuditRecord,
+    ProcessDeployRecord
+)
 
 __all__ = [
     'BaseModel',
@@ -68,5 +74,9 @@ __all__ = [
     'RepairOrder',
     'RepairDispatch',
     'RepairProcess',
-    'RepairAcceptance'
+    'RepairAcceptance',
+    'ProcessTemplate',
+    'ProcessTemplateParam',
+    'ProcessAuditRecord',
+    'ProcessDeployRecord'
 ]
