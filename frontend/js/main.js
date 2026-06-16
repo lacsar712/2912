@@ -11,7 +11,11 @@ const App = {
         alerts: AlertsPage,
         simulation: SimulationPage,
         inventory: InventoryPage,
-        supplier: SupplierPage
+        supplier: SupplierPage,
+        'quality-templates': QualityTemplatesPage,
+        'quality-orders': QualityOrdersPage,
+        'quality-order-form': QualityOrderFormPage,
+        'quality-analysis': QualityAnalysisPage
     },
 
     init() {
@@ -76,10 +80,14 @@ const App = {
     },
 
     navigate(page) {
+        const basePage = page.split('?')[0];
         window.location.hash = page;
 
         document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.toggle('active', item.dataset.page === page);
+            const itemPage = item.dataset.page;
+            const isQuality = itemPage === 'quality-orders';
+            const isQualitySubpage = isQuality && basePage.startsWith('quality-');
+            item.classList.toggle('active', itemPage === basePage || isQualitySubpage);
         });
 
         const titles = {
@@ -90,18 +98,23 @@ const App = {
             alerts: '告警中心',
             simulation: '数据模拟',
             inventory: '物料库存',
-            supplier: '供应商管理'
+            supplier: '供应商管理',
+            'quality-templates': '质检模板',
+            'quality-orders': '质检单管理',
+            'quality-order-form': '质检单录入',
+            'quality-analysis': '不合格分析'
         };
-        document.getElementById('pageTitle').textContent = titles[page] || page;
-        document.title = `${titles[page] || page} - 生产线监控系统`;
+        const pageTitle = titles[basePage] || page;
+        document.getElementById('pageTitle').textContent = pageTitle;
+        document.title = pageTitle + ' - 生产线监控系统';
 
         if (this.currentPage && this.pages[this.currentPage]?.destroy) {
             this.pages[this.currentPage].destroy();
         }
 
-        this.currentPage = page;
-        if (this.pages[page]?.init) {
-            this.pages[page].init();
+        this.currentPage = basePage;
+        if (this.pages[basePage]?.init) {
+            this.pages[basePage].init();
         }
     }
 };

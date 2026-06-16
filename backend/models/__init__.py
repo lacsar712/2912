@@ -26,6 +26,13 @@ from .supplier import (
     Contract,
     MonthlyRating
 )
+from .quality import (
+    InspectionTemplate,
+    InspectionTemplateItem,
+    InspectionOrder,
+    InspectionResult,
+    DefectRecord
+)
 
 __all__ = [
     'BaseModel',
@@ -46,5 +53,10 @@ __all__ = [
     'StockFlow',
     'Supplier',
     'Contract',
-    'MonthlyRating'
+    'MonthlyRating',
+    'InspectionTemplate',
+    'InspectionTemplateItem',
+    'InspectionOrder',
+    'InspectionResult',
+    'DefectRecord'
 ]

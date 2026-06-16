@@ -45,6 +45,11 @@ const TasksPage = {
                     field: 'id', 
                     title: '操作', 
                     render: (id, row) => this.renderActionButtons(id, row) 
+                },
+                {
+                    field: 'id',
+                    title: '质检',
+                    render: (id, row) => this.renderQualityButton(id, row)
                 }
             ],
             data: tasks
@@ -72,6 +77,25 @@ const TasksPage = {
         }
         
         return buttons.join(' ');
+    },
+
+    renderQualityButton(id, task) {
+        return `<button class="btn btn-sm btn-info" onclick="TasksPage.goToQuality(${id})">
+                    🔍 质检
+                </button>`;
+    },
+
+    async goToQuality(taskId) {
+        try {
+            const response = await QualityService.getOrderByTask(taskId);
+            if (response.code === 200) {
+                window.location.hash = `quality-order-form?id=${response.data.id}`;
+            } else {
+                window.location.hash = `quality-order-form?taskId=${taskId}`;
+            }
+        } catch (error) {
+            window.location.hash = `quality-order-form?taskId=${taskId}`;
+        }
     },
 
     getStatusText(status) {
@@ -114,7 +138,13 @@ const TasksPage = {
 
     async completeTask(id) {
         if (!confirm('确定要完成此任务吗？')) return;
-        await this.updateTaskStatus(id, 'completed');
+        const success = await this.updateTaskStatus(id, 'completed');
+        if (success) {
+            try {
+                await QualityService.syncTask(id);
+            } catch (e) {
+            }
+        }
     },
 
     async cancelTask(id) {
