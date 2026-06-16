@@ -155,6 +155,7 @@ const AlertsPage = {
 
         const severity = severityMap[alert.severity] || { text: alert.severity, class: '' };
         const status = statusMap[alert.status] || { text: alert.status, class: '' };
+        const isEquipmentError = alert.alert_type === 'equipment_error' && alert.equipment_id;
 
         return `
             <tr>
@@ -167,6 +168,9 @@ const AlertsPage = {
                 <td><span class="badge ${status.class}">${status.text}</span></td>
                 <td>${this.formatTime(alert.create_time)}</td>
                 <td>
+                    ${isEquipmentError ? `
+                        <button class="btn btn-sm btn-info" onclick="AlertsPage.quickRepair(${alert.id}, ${alert.equipment_id}, '${(alert.message || '').replace(/'/g, "\\'")}')">一键报修</button>
+                    ` : ''}
                     ${alert.status === 'active' ? `
                         <button class="btn btn-sm btn-warning" onclick="AlertsPage.acknowledge(${alert.id})">确认</button>
                         <button class="btn btn-sm btn-success" onclick="AlertsPage.resolve(${alert.id})">解决</button>
@@ -287,6 +291,22 @@ const AlertsPage = {
         } catch (error) {
             Toast.error('操作失败');
         }
+    },
+
+    quickRepair(alertId, equipmentId, message) {
+        const currentUser = AuthService.getCurrentUser();
+        const prefill = {
+            alert_id: alertId,
+            equipment_id: equipmentId,
+            fault_description: message || '设备故障告警',
+            reporter: currentUser ? currentUser.username : ''
+        };
+        App.navigate('repair-orders');
+        setTimeout(() => {
+            if (window.RepairOrdersPage) {
+                RepairOrdersPage.showCreateModal(prefill);
+            }
+        }, 300);
     }
 };
 

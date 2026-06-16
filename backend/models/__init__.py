@@ -33,6 +33,12 @@ from .quality import (
     InspectionResult,
     DefectRecord
 )
+from .repair import (
+    RepairOrder,
+    RepairDispatch,
+    RepairProcess,
+    RepairAcceptance
+)
 
 __all__ = [
     'BaseModel',
@@ -58,5 +64,9 @@ __all__ = [
     'InspectionTemplateItem',
     'InspectionOrder',
     'InspectionResult',
-    'DefectRecord'
+    'DefectRecord',
+    'RepairOrder',
+    'RepairDispatch',
+    'RepairProcess',
+    'RepairAcceptance'
 ]

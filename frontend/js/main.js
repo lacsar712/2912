@@ -15,7 +15,8 @@ const App = {
         'quality-templates': QualityTemplatesPage,
         'quality-orders': QualityOrdersPage,
         'quality-order-form': QualityOrderFormPage,
-        'quality-analysis': QualityAnalysisPage
+        'quality-analysis': QualityAnalysisPage,
+        'repair-orders': RepairOrdersPage
     },
 
     init() {
@@ -102,7 +103,8 @@ const App = {
             'quality-templates': '质检模板',
             'quality-orders': '质检单管理',
             'quality-order-form': '质检单录入',
-            'quality-analysis': '不合格分析'
+            'quality-analysis': '不合格分析',
+            'repair-orders': '维修工单'
         };
         const pageTitle = titles[basePage] || page;
         document.getElementById('pageTitle').textContent = pageTitle;

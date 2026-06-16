@@ -22,6 +22,7 @@ from controllers.alert_controller import alert_bp
 from controllers.inventory_controller import inventory_bp
 from controllers.supplier_controller import supplier_bp
 from controllers.quality_controller import quality_bp
+from controllers.repair_controller import repair_bp
 
 # 请求限制器 - 默认配置
 limiter = None
@@ -116,6 +117,7 @@ def create_app(config_class=Config):
     app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
     app.register_blueprint(supplier_bp, url_prefix='/api/supplier')
     app.register_blueprint(quality_bp, url_prefix='/api/quality')
+    app.register_blueprint(repair_bp, url_prefix='/api/repair')
 
     # 启动合同到期检查调度器
     if not app.config.get('TESTING'):

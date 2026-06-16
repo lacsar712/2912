@@ -303,57 +303,197 @@ const EquipmentPage = {
     async showDetail(id) {
         try {
             const response = await ProductionService.getEquipmentById(id);
-            if (response.code === 200) {
-                const eq = response.data;
-                const line = this.productionLines.find(l => l.id === eq.line_id);
-                
-                const sensorsHtml = (eq.sensors || []).map(s => `
-                    <tr>
-                        <td>${s.sensor_code || '-'}</td>
-                        <td>${s.sensor_name || '-'}</td>
-                        <td>${s.sensor_type || '-'}</td>
-                        <td>${s.current_value || '-'}</td>
-                        <td><span class="status-badge ${s.status}">${s.status || '-'}</span></td>
-                    </tr>
-                `).join('') || '<tr><td colspan="5" style="text-align: center;">暂无传感器</td></tr>';
-
-                await Modal.alert(`
-                    <div class="detail-section">
-                        <h4>基本信息</h4>
-                        <table class="detail-table">
-                            <tr><td>设备编号</td><td>${eq.equipment_code}</td></tr>
-                            <tr><td>设备名称</td><td>${eq.equipment_name}</td></tr>
-                            <tr><td>设备类型</td><td>${eq.equipment_type || '-'}</td></tr>
-                            <tr><td>所属生产线</td><td>${line ? (line.line_name || line.line_code) : '-'}</td></tr>
-                            <tr><td>型号</td><td>${eq.model || '-'}</td></tr>
-                            <tr><td>制造商</td><td>${eq.manufacturer || '-'}</td></tr>
-                            <tr><td>状态</td><td><span class="status-badge ${eq.status}">${this.getStatusText(eq.status)}</span></td></tr>
-                        </table>
-                    </div>
-                    <div class="detail-section" style="margin-top: 20px;">
-                        <h4>运行参数</h4>
-                        <table class="detail-table">
-                            <tr><td>温度</td><td>${eq.temperature ? parseFloat(eq.temperature).toFixed(2) + ' ℃' : '-'}</td></tr>
-                            <tr><td>压力</td><td>${eq.pressure ? parseFloat(eq.pressure).toFixed(2) + ' MPa' : '-'}</td></tr>
-                            <tr><td>速度</td><td>${eq.speed ? parseFloat(eq.speed).toFixed(2) + ' rpm' : '-'}</td></tr>
-                            <tr><td>运行时长</td><td>${eq.runtime_hours ? parseFloat(eq.runtime_hours).toFixed(1) + ' 小时' : '-'}</td></tr>
-                        </table>
-                    </div>
-                    <div class="detail-section" style="margin-top: 20px;">
-                        <h4>传感器列表</h4>
-                        <table class="data-table">
-                            <thead><tr><th>编号</th><th>名称</th><th>类型</th><th>当前值</th><th>状态</th></tr></thead>
-                            <tbody>${sensorsHtml}</tbody>
-                        </table>
-                    </div>
-                `, '设备详情');
-            } else {
+            if (response.code !== 200) {
                 Toast.error(response.message || '获取详情失败');
+                return;
+            }
+            const eq = response.data;
+            const line = this.productionLines.find(l => l.id === eq.line_id);
+
+            const sensorsHtml = (eq.sensors || []).map(s => `
+                <tr>
+                    <td>${s.sensor_code || '-'}</td>
+                    <td>${s.sensor_name || '-'}</td>
+                    <td>${s.sensor_type || '-'}</td>
+                    <td>${s.current_value || '-'}</td>
+                    <td><span class="status-badge ${s.status}">${s.status || '-'}</span></td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" style="text-align: center;">暂无传感器</td></tr>';
+
+            const basicInfoHtml = `
+                <div class="detail-section">
+                    <h4>基本信息</h4>
+                    <table class="detail-table">
+                        <tr><td>设备编号</td><td>${eq.equipment_code}</td></tr>
+                        <tr><td>设备名称</td><td>${eq.equipment_name}</td></tr>
+                        <tr><td>设备类型</td><td>${eq.equipment_type || '-'}</td></tr>
+                        <tr><td>所属生产线</td><td>${line ? (line.line_name || line.line_code) : '-'}</td></tr>
+                        <tr><td>型号</td><td>${eq.model || '-'}</td></tr>
+                        <tr><td>制造商</td><td>${eq.manufacturer || '-'}</td></tr>
+                        <tr><td>状态</td><td><span class="status-badge ${eq.status}">${this.getStatusText(eq.status)}</span></td></tr>
+                    </table>
+                </div>
+                <div class="detail-section" style="margin-top: 20px;">
+                    <h4>运行参数</h4>
+                    <table class="detail-table">
+                        <tr><td>温度</td><td>${eq.temperature ? parseFloat(eq.temperature).toFixed(2) + ' ℃' : '-'}</td></tr>
+                        <tr><td>压力</td><td>${eq.pressure ? parseFloat(eq.pressure).toFixed(2) + ' MPa' : '-'}</td></tr>
+                        <tr><td>速度</td><td>${eq.speed ? parseFloat(eq.speed).toFixed(2) + ' rpm' : '-'}</td></tr>
+                        <tr><td>运行时长</td><td>${eq.runtime_hours ? parseFloat(eq.runtime_hours).toFixed(1) + ' 小时' : '-'}</td></tr>
+                    </table>
+                </div>
+                <div class="detail-section" style="margin-top: 20px;">
+                    <h4>传感器列表</h4>
+                    <table class="data-table">
+                        <thead><tr><th>编号</th><th>名称</th><th>类型</th><th>当前值</th><th>状态</th></tr></thead>
+                        <tbody>${sensorsHtml}</tbody>
+                    </table>
+                </div>
+            `;
+
+            const repairHistoryHtml = `
+                <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div id="repairHistoryStats" style="color: var(--text-secondary); font-size: 13px;">加载中...</div>
+                    <button class="btn btn-sm btn-primary" onclick="EquipmentPage.quickCreateRepair(${eq.id}, '${eq.equipment_name.replace(/'/g, "\\'")}')">+ 报修此设备</button>
+                </div>
+                <div id="repairHistoryList">
+                    <div style="text-align:center;padding:30px;color:var(--text-secondary);">
+                        <div class="loading-spinner"></div>
+                        <div style="margin-top: 8px;">加载维修历史...</div>
+                    </div>
+                </div>
+            `;
+
+            const modalHtml = `
+                <div class="tabs" style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 16px;">
+                    <div class="tab-item active" data-tab="basic" style="padding: 10px 16px; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500;">基本信息</div>
+                    <div class="tab-item" data-tab="repair" style="padding: 10px 16px; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500;">维修历史</div>
+                </div>
+                <div class="tab-content" id="tabBasic" style="max-height: 500px; overflow-y: auto;">${basicInfoHtml}</div>
+                <div class="tab-content" id="tabRepair" style="display: none; max-height: 500px; overflow-y: auto;">${repairHistoryHtml}</div>
+            `;
+
+            const modal = new Modal({
+                title: '设备详情',
+                content: modalHtml,
+                width: '780px',
+                showFooter: false
+            }).show();
+
+            modal.modal.querySelectorAll('.tab-item').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    modal.modal.querySelectorAll('.tab-item').forEach(t => {
+                        t.classList.remove('active');
+                        t.style.borderBottomColor = 'transparent';
+                        t.style.color = '';
+                    });
+                    tab.classList.add('active');
+                    tab.style.borderBottomColor = 'var(--primary-color)';
+                    tab.style.color = 'var(--primary-color)';
+
+                    const target = tab.dataset.tab;
+                    modal.modal.querySelector('#tabBasic').style.display = target === 'basic' ? '' : 'none';
+                    modal.modal.querySelector('#tabRepair').style.display = target === 'repair' ? '' : 'none';
+
+                    if (target === 'repair') {
+                        this.loadRepairHistory(id, modal);
+                    }
+                });
+            });
+
+            const activeTab = modal.modal.querySelector('.tab-item.active');
+            if (activeTab) {
+                activeTab.style.borderBottomColor = 'var(--primary-color)';
+                activeTab.style.color = 'var(--primary-color)';
             }
         } catch (error) {
             console.error('获取设备详情失败:', error);
             Toast.error('获取设备详情失败');
         }
+    },
+
+    async loadRepairHistory(equipmentId, modal) {
+        try {
+            const resp = await RepairService.getEquipmentHistory(equipmentId, { size: 20 });
+            const listContainer = modal.modal.querySelector('#repairHistoryList');
+            const statsEl = modal.modal.querySelector('#repairHistoryStats');
+
+            if (resp.code !== 200) {
+                listContainer.innerHTML = `<div style="text-align:center;padding:30px;color:var(--danger-color);">加载失败</div>`;
+                statsEl.textContent = '';
+                return;
+            }
+
+            const orders = resp.data.items || [];
+            statsEl.textContent = `共 ${resp.data.total || orders.length} 条维修记录`;
+
+            if (orders.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="text-align:center;padding:40px;color:var(--text-secondary);">
+                        <div style="font-size: 48px; margin-bottom: 8px;">🔧</div>
+                        <div>暂无维修记录</div>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = orders.map(o => {
+                const severityColor = RepairService.SEVERITY_COLORS[o.severity] || '#6c757d';
+                const severityText = RepairService.SEVERITY_LABELS[o.severity] || o.severity;
+                const statusText = RepairService.STATUS_LABELS[o.status] || o.status;
+                return `
+                    <div style="border:1px solid var(--border-color);border-radius:6px;padding:12px;margin-bottom:10px;background:white;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <div>
+                                <span style="font-family:monospace;font-size:12px;color:var(--text-secondary);">${o.order_code}</span>
+                                <span style="margin-left:8px;padding:2px 8px;border-radius:10px;font-size:11px;background:${severityColor}20;color:${severityColor};">${severityText}</span>
+                            </div>
+                            <span class="badge badge-info">${statusText}</span>
+                        </div>
+                        <div style="margin-bottom:6px;font-size:13px;">${o.fault_description || '-'}</div>
+                        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);">
+                            <span>报修人: ${o.reporter || '-'} | 耗时: ${o.total_minutes || 0} 分钟</span>
+                            <span>${this.formatDetailTime(o.create_time)}</span>
+                        </div>
+                        <div style="margin-top:8px;">
+                            <button class="btn btn-xs btn-outline" onclick="EquipmentPage.viewRepairDetail(${o.id})">查看工单</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error(e);
+        }
+    },
+
+    formatDetailTime(timeStr) {
+        if (!timeStr) return '-';
+        try {
+            const date = new Date(timeStr);
+            return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        } catch {
+            return timeStr;
+        }
+    },
+
+    viewRepairDetail(orderId) {
+        if (window.RepairOrdersPage) {
+            RepairOrdersPage.showDetail(orderId);
+        }
+    },
+
+    quickCreateRepair(equipmentId, equipmentName) {
+        const currentUser = AuthService.getCurrentUser();
+        const prefill = {
+            equipment_id: equipmentId,
+            reporter: currentUser ? currentUser.username : ''
+        };
+        App.navigate('repair-orders');
+        setTimeout(() => {
+            if (window.RepairOrdersPage) {
+                RepairOrdersPage.showCreateModal(prefill);
+            }
+        }, 300);
     },
 
     async controlEquipment(id, action) {
