@@ -15,6 +15,12 @@ from .production import (
     ProductionRecord,
     AlertRecord
 )
+from .inventory import (
+    Material,
+    StockIn,
+    StockOut,
+    StockFlow
+)
 
 __all__ = [
     'BaseModel',
@@ -28,5 +34,9 @@ __all__ = [
     'Sensor',
     'ProductionTask',
     'ProductionRecord',
-    'AlertRecord'
+    'AlertRecord',
+    'Material',
+    'StockIn',
+    'StockOut',
+    'StockFlow'
 ]

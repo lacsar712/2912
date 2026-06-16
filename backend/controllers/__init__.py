@@ -8,6 +8,7 @@ from .statistics_controller import stats_bp
 from .config_controller import config_bp
 from .production_controller import production_bp
 from .simulation_controller import simulation_bp
+from .inventory_controller import inventory_bp
 
 __all__ = [
     'auth_bp',
@@ -16,5 +17,6 @@ __all__ = [
     'stats_bp',
     'config_bp',
     'production_bp',
-    'simulation_bp'
+    'simulation_bp',
+    'inventory_bp'
 ]
