@@ -60,6 +60,12 @@ from .energy import (
     EnergyPrice,
     MonthlyCostSummary
 )
+from .customer_order import (
+    Customer,
+    CustomerOrder,
+    OrderProductionTask,
+    Delivery
+)
 
 __all__ = [
     'BaseModel',
@@ -104,5 +110,9 @@ __all__ = [
     'MeteringPoint',
     'MeterReading',
     'EnergyPrice',
-    'MonthlyCostSummary'
+    'MonthlyCostSummary',
+    'Customer',
+    'CustomerOrder',
+    'OrderProductionTask',
+    'Delivery'
 ]

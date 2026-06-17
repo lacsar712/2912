@@ -1132,6 +1132,196 @@
             font-size: 12px;
             color: var(--text-muted);
         }
+
+        /* 客户订单相关样式 */
+        .order-swimlane-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+        }
+
+        .order-swimlane {
+            flex: 0 0 280px;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm);
+            max-height: calc(100vh - 320px);
+            overflow-y: auto;
+        }
+
+        .swimlane-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            background: var(--bg-white);
+            border-radius: var(--radius-sm);
+        }
+
+        .swimlane-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .swimlane-count {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 12px;
+        }
+
+        .order-card {
+            background: var(--bg-white);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            cursor: pointer;
+            border-left: 4px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .order-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .order-card-no {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .order-card-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .order-card-progress {
+            margin-top: 8px;
+        }
+
+        .order-delay-tag {
+            display: inline-block;
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        /* 延期风险看板 */
+        .delay-risk-board {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.08) 0%, rgba(220, 53, 69, 0.02) 100%);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .delay-risk-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #dc3545;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .delay-risk-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        .delay-risk-item {
+            background: var(--bg-white);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            cursor: pointer;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            transition: all 0.2s;
+        }
+
+        .delay-risk-item:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 通用进度条 */
+        .progress-bar-wrap {
+            height: 8px;
+            background: var(--bg-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-bar-fill.low {
+            background: linear-gradient(90deg, #f2994a, #f2c94c);
+        }
+
+        .progress-bar-fill.mid {
+            background: linear-gradient(90deg, #56ccf2, #2f80ed);
+        }
+
+        .progress-bar-fill.high {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+        }
+
+        /* 订单状态标签 */
+        .os-pending { border-left-color: #ffc107; }
+        .order-card-approved { border-left-color: #17a2b8; }
+        .order-card-in_production { border-left-color: #28a745; }
+        .order-card-partial_shipped { border-left-color: #fd7e14; }
+        .order-card-completed { border-left-color: #6c757d; }
+        .order-card-cancelled { border-left-color: #dc3545; }
+
+        /* 订单详情大数字 */
+        .big-stat-card {
+            text-align: center;
+            padding: var(--spacing-lg);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: var(--radius-md);
+        }
+
+        .big-stat-value {
+            font-size: 48px;
+            font-weight: 700;
+        }
+
+        .big-stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 信息网格 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .info-item-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .info-item-value {
+            font-size: 15px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -1174,6 +1364,23 @@
                 <span class="nav-icon">🏢</span>
                 <span class="nav-text">供应商</span>
             </a>
+            <div class="nav-group">
+                <a href="#" class="nav-item nav-group-header" data-page="customer-orders" data-subpage="true">
+                    <span class="nav-icon">🧾</span>
+                    <span class="nav-text">客户订单</span>
+                    <span class="nav-caret">▼</span>
+                </a>
+                <div class="nav-submenu">
+                    <a href="#" class="nav-item nav-subitem" data-page="customer-manage">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-text">客户管理</span>
+                    </a>
+                    <a href="#" class="nav-item nav-subitem" data-page="customer-orders">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">订单列表</span>
+                    </a>
+                </div>
+            </div>
             <a href="#" class="nav-item" data-page="quality-orders" data-subpage="true">
                 <span class="nav-icon">🔍</span>
                 <span class="nav-text">质检中心</span>
@@ -1346,6 +1553,10 @@
     <script src="/js/pages/energy-metering-points.js"></script>
     <script src="/js/pages/energy-readings.js"></script>
     <script src="/js/pages/energy-prices.js"></script>
+    <script src="/js/services/customerOrder.js"></script>
+    <script src="/js/pages/customer-manage.js"></script>
+    <script src="/js/pages/customer-orders.js"></script>
+    <script src="/js/pages/customer-order-detail.js"></script>
     <script src="/js/main.js"></script>
 </body>
 </html>

@@ -27,6 +27,7 @@ from controllers.process_controller import process_bp
 from controllers.organization_controller import organization_bp
 from controllers.patrol_controller import patrol_bp
 from controllers.energy_controller import energy_bp
+from controllers.customer_order_controller import customer_order_bp
 
 # 请求限制器 - 默认配置
 limiter = None
@@ -198,6 +199,7 @@ def create_app(config_class=Config):
     app.register_blueprint(organization_bp, url_prefix='/api/organization')
     app.register_blueprint(patrol_bp, url_prefix='/api/patrol')
     app.register_blueprint(energy_bp, url_prefix='/api/energy')
+    app.register_blueprint(customer_order_bp, url_prefix='/api/customer-order')
 
     # 启动合同到期检查调度器
     if not app.config.get('TESTING'):

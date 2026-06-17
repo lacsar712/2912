@@ -34,7 +34,10 @@ const App = {
         'energy-dashboard': EnergyDashboardPage,
         'energy-metering-points': EnergyMeteringPointsPage,
         'energy-readings': EnergyReadingsPage,
-        'energy-prices': EnergyPricesPage
+        'energy-prices': EnergyPricesPage,
+        'customer-manage': CustomerManagePage,
+        'customer-orders': CustomerOrdersPage,
+        'customer-order-detail': CustomerOrderDetailPage
     },
 
     init() {
@@ -124,7 +127,9 @@ const App = {
             const isPatrolSubpage = basePage.startsWith('patrol-');
             const isEnergy = itemPage === 'energy-dashboard' && item.classList.contains('nav-group-header');
             const isEnergySubpage = basePage.startsWith('energy-');
-            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage || (isOrg && isOrgSubpage) || (isPatrol && isPatrolSubpage) || (isEnergy && isEnergySubpage));
+            const isCustomerOrder = itemPage === 'customer-orders' && item.classList.contains('nav-group-header');
+            const isCustomerOrderSubpage = basePage.startsWith('customer-');
+            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage || (isOrg && isOrgSubpage) || (isPatrol && isPatrolSubpage) || (isEnergy && isEnergySubpage) || (isCustomerOrder && isCustomerOrderSubpage));
         });
 
         const titles = {
@@ -158,7 +163,10 @@ const App = {
             'energy-dashboard': '能源看板',
             'energy-metering-points': '计量点管理',
             'energy-readings': '读数录入',
-            'energy-prices': '单价配置'
+            'energy-prices': '单价配置',
+            'customer-manage': '客户管理',
+            'customer-orders': '订单列表',
+            'customer-order-detail': '订单详情'
         };
         const pageTitle = titles[basePage] || page;
         document.getElementById('pageTitle').textContent = pageTitle;
