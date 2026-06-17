@@ -30,7 +30,11 @@ const App = {
         'patrol-plans': PatrolPlansPage,
         'patrol-tasks': PatrolTasksPage,
         'patrol-execute': PatrolExecutePage,
-        'patrol-reports': PatrolReportsPage
+        'patrol-reports': PatrolReportsPage,
+        'energy-dashboard': EnergyDashboardPage,
+        'energy-metering-points': EnergyMeteringPointsPage,
+        'energy-readings': EnergyReadingsPage,
+        'energy-prices': EnergyPricesPage
     },
 
     init() {
@@ -118,7 +122,9 @@ const App = {
             const isOrgSubpage = basePage.startsWith('org-') || basePage.startsWith('employee-') || basePage.startsWith('department-') || basePage.startsWith('position-') || basePage.startsWith('permission-');
             const isPatrol = itemPage === 'patrol-routes' && item.classList.contains('nav-group-header');
             const isPatrolSubpage = basePage.startsWith('patrol-');
-            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage || (isOrg && isOrgSubpage) || (isPatrol && isPatrolSubpage));
+            const isEnergy = itemPage === 'energy-dashboard' && item.classList.contains('nav-group-header');
+            const isEnergySubpage = basePage.startsWith('energy-');
+            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage || (isOrg && isOrgSubpage) || (isPatrol && isPatrolSubpage) || (isEnergy && isEnergySubpage));
         });
 
         const titles = {
@@ -148,7 +154,11 @@ const App = {
             'patrol-plans': '巡检计划',
             'patrol-tasks': '巡检任务',
             'patrol-execute': '执行巡检',
-            'patrol-reports': '巡检报表'
+            'patrol-reports': '巡检报表',
+            'energy-dashboard': '能源看板',
+            'energy-metering-points': '计量点管理',
+            'energy-readings': '读数录入',
+            'energy-prices': '单价配置'
         };
         const pageTitle = titles[basePage] || page;
         document.getElementById('pageTitle').textContent = pageTitle;

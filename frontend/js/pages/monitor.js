@@ -5,18 +5,19 @@ const MonitorPage = {
     refreshInterval: null,
     currentPage: 1,
     supplierStats: null,
+    energyCost: null,
 
     init() {
         this.loadDashboard();
-        // 每30秒自动刷新
         this.refreshInterval = setInterval(() => this.loadDashboard(), 30000);
     },
 
     async loadDashboard() {
         try {
-            const [prodResponse, supplierResponse] = await Promise.all([
+            const [prodResponse, supplierResponse, energyResponse] = await Promise.all([
                 ProductionService.getDashboard(),
-                SupplierService.getDashboardStats()
+                SupplierService.getDashboardStats(),
+                EnergyService.getTodayCost()
             ]);
 
             if (prodResponse.code === 200) {
@@ -24,6 +25,10 @@ const MonitorPage = {
                 if (supplierResponse.code === 200) {
                     data.supplier_stats = supplierResponse.data;
                     this.supplierStats = supplierResponse.data;
+                }
+                if (energyResponse.code === 200) {
+                    data.energy_cost = energyResponse.data;
+                    this.energyCost = energyResponse.data;
                 }
                 this.renderDashboard(data);
             }
@@ -83,6 +88,14 @@ const MonitorPage = {
                     <div class="stat-card-value">${data.supplier_stats?.expiring_contracts?.length || 0}</div>
                     <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
                         15天内到期
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">⚡</div>
+                    <div class="stat-card-title">今日能耗成本</div>
+                    <div class="stat-card-value">¥${Formatter.formatNumber(data.energy_cost?.today_cost || 0)}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                        <a href="#" onclick="App.navigate('energy-dashboard'); return false;" style="color: var(--primary-color);">查看详情 →</a>
                     </div>
                 </div>
             </div>
