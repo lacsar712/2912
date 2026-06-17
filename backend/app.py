@@ -25,6 +25,7 @@ from controllers.quality_controller import quality_bp
 from controllers.repair_controller import repair_bp
 from controllers.process_controller import process_bp
 from controllers.organization_controller import organization_bp
+from controllers.patrol_controller import patrol_bp
 
 # 请求限制器 - 默认配置
 limiter = None
@@ -69,6 +70,78 @@ def start_contract_expiry_scheduler(app):
             except Exception as e:
                 from utils.logger import logger
                 logger.error(f"[合同到期调度器] 循环出错: {str(e)}")
+                time.sleep(60)
+
+    scheduler_thread = threading.Thread(target=scheduler_loop, daemon=True)
+    scheduler_thread.start()
+    return scheduler_thread
+
+
+def start_patrol_task_scheduler(app):
+    """启动巡检任务生成调度器（每天凌晨00:30执行）"""
+    def scheduler_loop():
+        from services.patrol_service import PatrolTaskService
+        from utils.logger import logger
+
+        while True:
+            try:
+                now = datetime.now()
+                next_run = now.replace(hour=0, minute=30, second=0, microsecond=0)
+                if next_run <= now:
+                    next_run = next_run.replace(day=next_run.day + 1)
+
+                sleep_seconds = (next_run - now).total_seconds()
+                logger.info(f"[巡检任务调度器] 下次执行时间: {next_run.strftime('%Y-%m-%d %H:%M:%S')}，等待 {sleep_seconds:.0f} 秒")
+
+                time.sleep(min(sleep_seconds, 3600))
+
+                current_time = datetime.now()
+                if current_time >= next_run:
+                    with app.app_context():
+                        try:
+                            result = PatrolTaskService.generate_today_tasks()
+                            logger.info(f"[巡检任务调度器] 执行完成")
+                        except Exception as e:
+                            logger.error(f"[巡检任务调度器] 执行出错: {str(e)}")
+            except Exception as e:
+                from utils.logger import logger
+                logger.error(f"[巡检任务调度器] 循环出错: {str(e)}")
+                time.sleep(60)
+
+    scheduler_thread = threading.Thread(target=scheduler_loop, daemon=True)
+    scheduler_thread.start()
+    return scheduler_thread
+
+
+def start_patrol_overdue_scheduler(app):
+    """启动巡检逾期检测调度器（每小时执行一次）"""
+    def scheduler_loop():
+        from services.patrol_service import PatrolTaskService
+        from utils.logger import logger
+
+        while True:
+            try:
+                now = datetime.now()
+                next_run = now.replace(minute=0, second=0, microsecond=0)
+                if next_run <= now:
+                    next_run = next_run.replace(hour=next_run.hour + 1)
+
+                sleep_seconds = (next_run - now).total_seconds()
+                logger.info(f"[巡检逾期调度器] 下次执行时间: {next_run.strftime('%Y-%m-%d %H:%M:%S')}，等待 {sleep_seconds:.0f} 秒")
+
+                time.sleep(min(sleep_seconds, 1800))
+
+                current_time = datetime.now()
+                if current_time >= next_run:
+                    with app.app_context():
+                        try:
+                            result = PatrolTaskService.check_overdue_tasks()
+                            logger.info(f"[巡检逾期调度器] 执行完成")
+                        except Exception as e:
+                            logger.error(f"[巡检逾期调度器] 执行出错: {str(e)}")
+            except Exception as e:
+                from utils.logger import logger
+                logger.error(f"[巡检逾期调度器] 循环出错: {str(e)}")
                 time.sleep(60)
 
     scheduler_thread = threading.Thread(target=scheduler_loop, daemon=True)
@@ -122,11 +195,14 @@ def create_app(config_class=Config):
     app.register_blueprint(repair_bp, url_prefix='/api/repair')
     app.register_blueprint(process_bp, url_prefix='/api/process')
     app.register_blueprint(organization_bp, url_prefix='/api/organization')
+    app.register_blueprint(patrol_bp, url_prefix='/api/patrol')
 
     # 启动合同到期检查调度器
     if not app.config.get('TESTING'):
         with app.app_context():
             start_contract_expiry_scheduler(app)
+            start_patrol_task_scheduler(app)
+            start_patrol_overdue_scheduler(app)
 
     # 健康检查
     @app.route('/health')

@@ -45,6 +45,14 @@ from .process import (
     ProcessAuditRecord,
     ProcessDeployRecord
 )
+from .patrol import (
+    PatrolRoute,
+    PatrolCheckpoint,
+    PatrolItem,
+    PatrolPlan,
+    PatrolTask,
+    PatrolResult
+)
 
 __all__ = [
     'BaseModel',
@@ -78,5 +86,11 @@ __all__ = [
     'ProcessTemplate',
     'ProcessTemplateParam',
     'ProcessAuditRecord',
-    'ProcessDeployRecord'
+    'ProcessDeployRecord',
+    'PatrolRoute',
+    'PatrolCheckpoint',
+    'PatrolItem',
+    'PatrolPlan',
+    'PatrolTask',
+    'PatrolResult'
 ]

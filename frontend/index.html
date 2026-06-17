@@ -618,6 +618,520 @@
             margin-bottom: var(--spacing-md);
             opacity: 0.5;
         }
+
+        /* 巡检管理样式 */
+        .checkpoint-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            cursor: grab;
+            transition: all 0.2s;
+        }
+
+        .checkpoint-card:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .checkpoint-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .checkpoint-card.drag-over {
+            border-color: var(--primary-color);
+            background: rgba(0, 123, 255, 0.05);
+        }
+
+        .checkpoint-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .checkpoint-drag-handle {
+            color: var(--text-muted);
+            cursor: grab;
+            font-size: 18px;
+        }
+
+        .checkpoint-number {
+            width: 28px;
+            height: 28px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .checkpoint-title {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .checkpoint-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 80px 60px 80px;
+            gap: var(--spacing-sm);
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .item-row input,
+        .item-row select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+        }
+
+        /* 巡检任务执行界面 */
+        .checkpoint-execute-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+            overflow: hidden;
+        }
+
+        .checkpoint-execute-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .checkpoint-execute-header .checkpoint-number {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .checkpoint-execute-title {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+        }
+
+        .checkpoint-execute-meta {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .checkpoint-execute-meta span {
+            margin-right: var(--spacing-md);
+        }
+
+        .checkpoint-status {
+            flex-shrink: 0;
+        }
+
+        .checkpoint-execute-body {
+            padding: var(--spacing-md);
+        }
+
+        .inspection-item {
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .inspection-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .inspection-item-name {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .inspection-item-expected {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .inspection-item-input {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+            margin-top: var(--spacing-sm);
+        }
+
+        .inspection-item-input input[type="text"],
+        .inspection-item-input input[type="number"],
+        .inspection-item-input select,
+        .inspection-item-input textarea {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+        }
+
+        .inspection-item-input textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .abnormal-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 6px 12px;
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .abnormal-toggle.active {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+
+        .abnormal-toggle input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .image-upload-area {
+            margin-top: var(--spacing-sm);
+        }
+
+        .image-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 8px 16px;
+            background: var(--bg-light);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .image-upload-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-remove {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .execute-progress-bar {
+            height: 6px;
+            background: var(--bg-light);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .execute-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            transition: width 0.3s ease;
+        }
+
+        .execute-footer {
+            position: sticky;
+            bottom: 0;
+            background: var(--bg-white);
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .execute-footer-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .execute-footer-info strong {
+            color: var(--primary-color);
+        }
+
+        /* 巡检任务列表 */
+        .task-status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .task-status-pending {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+        }
+
+        .task-status-in_progress {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+        }
+
+        .task-status-completed {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .task-status-overdue {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        /* 巡检报表 */
+        .report-stat-card {
+            text-align: center;
+        }
+
+        .report-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .report-stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .report-chart-container {
+            background: var(--bg-white);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .report-chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .abnormal-rank-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .abnormal-rank-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: var(--spacing-md);
+            flex-shrink: 0;
+        }
+
+        .abnormal-rank-item:nth-child(1) .abnormal-rank-number {
+            background: #ffd700;
+            color: #856404;
+        }
+
+        .abnormal-rank-item:nth-child(2) .abnormal-rank-number {
+            background: #c0c0c0;
+            color: #495057;
+        }
+
+        .abnormal-rank-item:nth-child(3) .abnormal-rank-number {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .abnormal-rank-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .abnormal-rank-count {
+            font-weight: 600;
+            color: var(--danger-color);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .item-row {
+                grid-template-columns: 1fr;
+            }
+
+            .checkpoint-execute-header {
+                flex-wrap: wrap;
+            }
+
+            .execute-footer {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+
+            .execute-footer .btn {
+                width: 100%;
+            }
+
+            .inspection-item-input {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* 表单样式补充 */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-label .required {
+            color: var(--danger-color);
+            margin-left: 2px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .week-days-selector {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .week-day-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            background: var(--bg-white);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .week-day-btn:hover {
+            border-color: var(--primary-color);
+        }
+
+        .week-day-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .month-days-input {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+
+        .month-days-input input {
+            width: 120px;
+        }
+
+        .month-days-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
@@ -701,6 +1215,31 @@
                     </a>
                 </div>
             </div>
+            <div class="nav-group">
+                <a href="#" class="nav-item nav-group-header" data-page="patrol-routes" data-subpage="true">
+                    <span class="nav-icon">🚶</span>
+                    <span class="nav-text">巡检管理</span>
+                    <span class="nav-caret">▼</span>
+                </a>
+                <div class="nav-submenu">
+                    <a href="#" class="nav-item nav-subitem" data-page="patrol-routes">
+                        <span class="nav-icon">🗺️</span>
+                        <span class="nav-text">巡检路线</span>
+                    </a>
+                    <a href="#" class="nav-item nav-subitem" data-page="patrol-plans">
+                        <span class="nav-icon">📅</span>
+                        <span class="nav-text">巡检计划</span>
+                    </a>
+                    <a href="#" class="nav-item nav-subitem" data-page="patrol-tasks">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">巡检任务</span>
+                    </a>
+                    <a href="#" class="nav-item nav-subitem" data-page="patrol-reports">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">巡检报表</span>
+                    </a>
+                </div>
+            </div>
         </nav>
     </aside>
 
@@ -771,6 +1310,12 @@
     <script src="/js/pages/department-manage.js"></script>
     <script src="/js/pages/position-manage.js"></script>
     <script src="/js/pages/permission-group.js"></script>
+    <script src="/js/services/patrol.js"></script>
+    <script src="/js/pages/patrol-routes.js"></script>
+    <script src="/js/pages/patrol-plans.js"></script>
+    <script src="/js/pages/patrol-tasks.js"></script>
+    <script src="/js/pages/patrol-execute.js"></script>
+    <script src="/js/pages/patrol-reports.js"></script>
     <script src="/js/main.js"></script>
 </body>
 </html>

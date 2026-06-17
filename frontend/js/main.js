@@ -25,7 +25,12 @@ const App = {
         'employee-list': EmployeeListPage,
         'department-manage': DepartmentManagePage,
         'position-manage': PositionManagePage,
-        'permission-group': PermissionGroupPage
+        'permission-group': PermissionGroupPage,
+        'patrol-routes': PatrolRoutesPage,
+        'patrol-plans': PatrolPlansPage,
+        'patrol-tasks': PatrolTasksPage,
+        'patrol-execute': PatrolExecutePage,
+        'patrol-reports': PatrolReportsPage
     },
 
     init() {
@@ -111,7 +116,9 @@ const App = {
             const isProcessSubpage = isProcess && basePage.startsWith('process-');
             const isOrg = itemPage === 'org-dashboard' && item.classList.contains('nav-group-header');
             const isOrgSubpage = basePage.startsWith('org-') || basePage.startsWith('employee-') || basePage.startsWith('department-') || basePage.startsWith('position-') || basePage.startsWith('permission-');
-            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage || (isOrg && isOrgSubpage));
+            const isPatrol = itemPage === 'patrol-routes' && item.classList.contains('nav-group-header');
+            const isPatrolSubpage = basePage.startsWith('patrol-');
+            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage || (isOrg && isOrgSubpage) || (isPatrol && isPatrolSubpage));
         });
 
         const titles = {
@@ -136,7 +143,12 @@ const App = {
             'employee-list': '员工列表',
             'department-manage': '部门管理',
             'position-manage': '岗位管理',
-            'permission-group': '权限分组'
+            'permission-group': '权限分组',
+            'patrol-routes': '巡检路线',
+            'patrol-plans': '巡检计划',
+            'patrol-tasks': '巡检任务',
+            'patrol-execute': '执行巡检',
+            'patrol-reports': '巡检报表'
         };
         const pageTitle = titles[basePage] || page;
         document.getElementById('pageTitle').textContent = pageTitle;
