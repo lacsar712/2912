@@ -20,7 +20,12 @@ const App = {
         'process-templates': ProcessTemplatesPage,
         'process-compare': ProcessComparePage,
         'process-audit': ProcessAuditPage,
-        'process-deploy': ProcessDeployPage
+        'process-deploy': ProcessDeployPage,
+        'org-dashboard': OrgDashboardPage,
+        'employee-list': EmployeeListPage,
+        'department-manage': DepartmentManagePage,
+        'position-manage': PositionManagePage,
+        'permission-group': PermissionGroupPage
     },
 
     init() {
@@ -61,9 +66,19 @@ const App = {
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
+                if (item.classList.contains('nav-group-header')) {
+                    const submenu = item.nextElementSibling;
+                    const caret = item.querySelector('.nav-caret');
+                    if (submenu) {
+                        submenu.classList.toggle('show');
+                        caret?.classList.toggle('rotate');
+                    }
+                }
                 const page = item.dataset.page;
-                this.navigate(page);
-                sidebar.classList.remove('show');
+                if (page && !item.classList.contains('nav-group-header')) {
+                    this.navigate(page);
+                    sidebar.classList.remove('show');
+                }
             });
         });
     },
@@ -94,7 +109,9 @@ const App = {
             const isQualitySubpage = isQuality && basePage.startsWith('quality-');
             const isProcess = itemPage === 'process-templates';
             const isProcessSubpage = isProcess && basePage.startsWith('process-');
-            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage);
+            const isOrg = itemPage === 'org-dashboard' && item.classList.contains('nav-group-header');
+            const isOrgSubpage = basePage.startsWith('org-') || basePage.startsWith('employee-') || basePage.startsWith('department-') || basePage.startsWith('position-') || basePage.startsWith('permission-');
+            item.classList.toggle('active', itemPage === basePage || isQualitySubpage || isProcessSubpage || (isOrg && isOrgSubpage));
         });
 
         const titles = {
@@ -114,7 +131,12 @@ const App = {
             'process-templates': '工艺模板',
             'process-compare': '版本对比',
             'process-audit': '审核工作台',
-            'process-deploy': '下发记录'
+            'process-deploy': '下发记录',
+            'org-dashboard': '组织统计看板',
+            'employee-list': '员工列表',
+            'department-manage': '部门管理',
+            'position-manage': '岗位管理',
+            'permission-group': '权限分组'
         };
         const pageTitle = titles[basePage] || page;
         document.getElementById('pageTitle').textContent = pageTitle;
