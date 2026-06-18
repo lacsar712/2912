@@ -4,6 +4,7 @@
 const InventoryPage = {
     currentTab: 'materials',
     materials: [],
+    allMaterials: [],
     categories: [],
     stockIns: [],
     stockOuts: [],
@@ -23,6 +24,7 @@ const InventoryPage = {
 
     init() {
         this.loadCategories();
+        this.loadAllMaterials();
         this.loadTabData();
     },
 
@@ -30,6 +32,21 @@ const InventoryPage = {
         if (this.trendChart) {
             this.trendChart.destroy();
             this.trendChart = null;
+        }
+    },
+
+    async loadAllMaterials() {
+        try {
+            const res = await InventoryService.getMaterials({
+                page: 1,
+                size: 1000,
+                status: 'active'
+            });
+            if (res.code === 200) {
+                this.allMaterials = res.data.items || [];
+            }
+        } catch (e) {
+            console.error(e);
         }
     },
 
@@ -757,6 +774,7 @@ const InventoryPage = {
                         Toast.success('创建成功');
                         modal.close();
                         this.loadCategories();
+                        this.loadAllMaterials();
                         this.loadTabData();
                     } else {
                         Toast.error(res.message || '创建失败');
@@ -849,6 +867,7 @@ const InventoryPage = {
             const res = await InventoryService.toggleMaterialStatus(id);
             if (res.code === 200) {
                 Toast.success('状态更新成功');
+                this.loadAllMaterials();
                 this.loadTabData();
             } else {
                 Toast.error(res.message || '操作失败');
@@ -868,6 +887,7 @@ const InventoryPage = {
             if (res.code === 200) {
                 Toast.success('删除成功');
                 this.loadCategories();
+                this.loadAllMaterials();
                 this.loadTabData();
             } else {
                 Toast.error(res.message || '删除失败');
@@ -879,7 +899,7 @@ const InventoryPage = {
     },
 
     showStockInModal() {
-        const materialOptions = this.materials
+        const materialOptions = this.allMaterials
             .filter(m => m.status === 'active')
             .map(m => `<option value="${m.id}">${m.material_code} - ${m.material_name} (库存: ${m.current_stock})</option>`)
             .join('');
@@ -928,6 +948,7 @@ const InventoryPage = {
                     if (res.code === 201) {
                         Toast.success('入库成功');
                         modal.close();
+                        this.loadAllMaterials();
                         this.loadTabData();
                     } else {
                         Toast.error(res.message || '入库失败');
@@ -944,7 +965,7 @@ const InventoryPage = {
     },
 
     showStockOutModal() {
-        const materialOptions = this.materials
+        const materialOptions = this.allMaterials
             .filter(m => m.status === 'active')
             .map(m => `<option value="${m.id}">${m.material_code} - ${m.material_name} (库存: ${m.current_stock})</option>`)
             .join('');
@@ -993,6 +1014,7 @@ const InventoryPage = {
                     if (res.code === 201) {
                         Toast.success('出库成功');
                         modal.close();
+                        this.loadAllMaterials();
                         this.loadTabData();
                     } else {
                         Toast.error(res.message || '出库失败');

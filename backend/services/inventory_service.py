@@ -508,12 +508,65 @@ class InventoryStatsService:
     @staticmethod
     def get_dashboard_data():
         """获取库存看板数据"""
-        low_stock = MaterialService.get_low_stock_materials(10)
-        trend = InventoryStatsService.get_stock_trend(7)
-        stats = InventoryStatsService.get_inventory_stats()
+        total_materials = Material.query.filter(Material.status == 'active').count()
+        low_stock_count = Material.query.filter(
+            Material.current_stock < Material.safety_stock,
+            Material.status == 'active'
+        ).count()
+        total_stock_value = db.session.query(
+            db.func.sum(Material.current_stock)
+        ).filter(Material.status == 'active').scalar() or 0
+
+        stats = {
+            'total_materials': total_materials,
+            'low_stock_count': low_stock_count,
+            'total_stock': float(total_stock_value)
+        }
+
+        low_stock_materials = Material.query.filter(
+            Material.current_stock < Material.safety_stock,
+            Material.status == 'active'
+        ).order_by(Material.current_stock.asc()).limit(10).all()
+        low_stock_list = [m.to_dict() for m in low_stock_materials]
+
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=6)
+        start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        date_list = []
+        for i in range(7):
+            d = start_date + timedelta(days=i)
+            date_list.append(d.strftime('%Y-%m-%d'))
+
+        in_totals = {}
+        out_totals = {}
+
+        stock_ins = StockIn.query.filter(
+            StockIn.in_time >= start_date,
+            StockIn.in_time <= end_date
+        ).all()
+        for si in stock_ins:
+            date_key = si.in_time.strftime('%Y-%m-%d')
+            in_totals[date_key] = in_totals.get(date_key, 0) + float(si.quantity)
+
+        stock_outs = StockOut.query.filter(
+            StockOut.out_time >= start_date,
+            StockOut.out_time <= end_date
+        ).all()
+        for so in stock_outs:
+            date_key = so.out_time.strftime('%Y-%m-%d')
+            out_totals[date_key] = out_totals.get(date_key, 0) + float(so.quantity)
+
+        stock_trend = []
+        for date in date_list:
+            stock_trend.append({
+                'date': date,
+                'stock_in': in_totals.get(date, 0),
+                'stock_out': out_totals.get(date, 0)
+            })
 
         return Response.success({
-            'stats': stats.data if hasattr(stats, 'data') else {},
-            'low_stock_materials': low_stock.data if hasattr(low_stock, 'data') else [],
-            'stock_trend': trend.data if hasattr(trend, 'data') else []
+            'stats': stats,
+            'low_stock_materials': low_stock_list,
+            'stock_trend': stock_trend
         })
