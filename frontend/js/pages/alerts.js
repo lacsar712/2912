@@ -301,12 +301,12 @@ const AlertsPage = {
             fault_description: message || '设备故障告警',
             reporter: currentUser ? currentUser.username : ''
         };
-        App.navigate('repair-orders');
-        setTimeout(() => {
-            if (window.RepairOrdersPage) {
-                RepairOrdersPage.showCreateModal(prefill);
+        RepairCreateModal.open(prefill, {
+            onSuccess: () => {
+                this.loadStatistics();
+                this.loadAlerts();
             }
-        }, 300);
+        });
     }
 };
 

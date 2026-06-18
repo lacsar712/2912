@@ -379,6 +379,7 @@ const EquipmentPage = {
                 width: '780px',
                 showFooter: false
             }).show();
+            EquipmentPage.currentDetailModal = modal;
 
             modal.modal.querySelectorAll('.tab-item').forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -488,12 +489,15 @@ const EquipmentPage = {
             equipment_id: equipmentId,
             reporter: currentUser ? currentUser.username : ''
         };
-        App.navigate('repair-orders');
-        setTimeout(() => {
-            if (window.RepairOrdersPage) {
-                RepairOrdersPage.showCreateModal(prefill);
+        try {
+            if (this.currentDetailModal && typeof this.currentDetailModal.close === 'function') {
+                this.currentDetailModal.close();
             }
-        }, 300);
+            this.currentDetailModal = null;
+        } catch (e) {
+            // ignore close errors
+        }
+        RepairCreateModal.open(prefill);
     },
 
     async controlEquipment(id, action) {
