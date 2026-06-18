@@ -275,7 +275,7 @@ const PermissionGroupPage = {
                                         `<span style="font-weight: 500;">${Validator.sanitize(item.permission_name)}</span>
                                          <span style="color: var(--text-secondary); font-size: 11px; margin-left: 4px;">(${Validator.sanitize(item.permission_code)})</span>` :
                                         `<span>${Validator.sanitize(item.name)}</span>
-                                         <span style="color: var(--text-secondary); font-size: 11px; margin-left: 4px;">(${Validator.sanitize(item.employee_code)})</span>
+                                         <span style="color: var(--text-secondary); font-size: 11px; margin-left: 4px;">(${Validator.sanitize(item.employee_code)})</span>`
                                     }
                                 </span>
                             </label>

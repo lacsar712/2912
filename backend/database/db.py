@@ -33,6 +33,11 @@ def init_db(app, max_retries=30, retry_interval=2):
                 logger.info("Database initialized successfully")
                 return
             except Exception as e:
+                error_msg = str(e)
+                # 多 worker 并发启动时可能同时执行 create_all，忽略已存在/并发 DDL 错误
+                if 'already exists' in error_msg or '1684' in error_msg:
+                    logger.info("Database tables already exist, continuing")
+                    return
                 if attempt < max_retries - 1:
                     logger.warning(f"Database connection attempt {attempt + 1}/{max_retries} failed: {e}")
                     time.sleep(retry_interval)
