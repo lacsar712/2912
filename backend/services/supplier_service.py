@@ -303,8 +303,8 @@ class ContractService:
             return Response.error(f'删除失败: {str(e)}')
 
     @staticmethod
-    def get_expiring_contracts(days=15, limit=5):
-        """获取即将到期的合同"""
+    def _get_expiring_contracts_raw(days=15, limit=5):
+        """获取即将到期的合同（返回原始数据列表，用于服务内部调用）"""
         today = datetime.now().date()
         expiry_date = today + timedelta(days=days)
 
@@ -315,7 +315,12 @@ class ContractService:
             Contract.status == 1
         ).order_by(Contract.end_date.asc()).limit(limit).all()
 
-        return Response.success([c.to_dict() for c in contracts])
+        return [c.to_dict() for c in contracts]
+
+    @staticmethod
+    def get_expiring_contracts(days=15, limit=5):
+        """获取即将到期的合同（返回Response，用于API控制器）"""
+        return Response.success(ContractService._get_expiring_contracts_raw(days, limit))
 
     @staticmethod
     def check_contract_expiry():
@@ -549,8 +554,7 @@ class SupplierDashboardService:
             Supplier.status == 1
         ).count()
 
-        expiring_contracts = ContractService.get_expiring_contracts(days=15, limit=5)
-        expiring_data = expiring_contracts.data if hasattr(expiring_contracts, 'data') else []
+        expiring_data = ContractService._get_expiring_contracts_raw(days=15, limit=5)
 
         return Response.success({
             'new_suppliers_this_month': new_suppliers_this_month,

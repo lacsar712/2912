@@ -785,12 +785,8 @@ const SupplierPage = {
         }).show();
     },
 
-    showEditSupplierModal(id) {
-        const supplier = this.suppliers.find(s => s.id === id) || 
-                        (this.supplierDetail?.id === id ? this.supplierDetail : null);
-        if (!supplier) return;
-
-        const content = `
+    _renderSupplierFormContent(supplier) {
+        return `
             <form id="supplierForm">
                 <div class="form-group">
                     <label>供应商编号 *</label>
@@ -830,6 +826,10 @@ const SupplierPage = {
                 </div>
             </form>
         `;
+    },
+
+    _showEditSupplierModalWithData(id, supplier) {
+        const content = this._renderSupplierFormContent(supplier);
 
         const modal = new Modal({
             title: '编辑供应商',
@@ -860,6 +860,29 @@ const SupplierPage = {
                 return false;
             }
         }).show();
+    },
+
+    async showEditSupplierModal(id) {
+        let supplier = this.suppliers.find(s => s.id === id) ||
+                        (this.supplierDetail?.id === id ? this.supplierDetail : null);
+
+        if (!supplier) {
+            try {
+                const res = await SupplierService.getSupplierById(id);
+                if (res.code === 200 && res.data) {
+                    supplier = res.data;
+                } else {
+                    Toast.error(res.message || '获取供应商信息失败');
+                    return;
+                }
+            } catch (e) {
+                Toast.error('获取供应商信息失败');
+                console.error(e);
+                return;
+            }
+        }
+
+        this._showEditSupplierModalWithData(id, supplier);
     },
 
     async deleteSupplier(id) {
