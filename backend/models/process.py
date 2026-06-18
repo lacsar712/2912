@@ -8,8 +8,11 @@ from models.base import BaseModel
 class ProcessTemplate(BaseModel):
     """工艺参数模板模型"""
     __tablename__ = 'process_template'
+    __table_args__ = (
+        db.UniqueConstraint('template_code', 'version', name='uk_template_code_version'),
+    )
 
-    template_code = db.Column(db.String(50), unique=True, nullable=False, comment='模板编号')
+    template_code = db.Column(db.String(50), nullable=False, comment='模板编号')
     template_name = db.Column(db.String(100), nullable=False, comment='模板名称')
     product_name = db.Column(db.String(100), comment='关联产品')
     process_step = db.Column(db.String(100), comment='关联工序')

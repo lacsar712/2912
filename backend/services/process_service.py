@@ -17,7 +17,7 @@ class ProcessTemplateService:
     @staticmethod
     def get_templates(page=1, size=10, product_name=None, status=None, keyword=None):
         """获取模板列表"""
-        query = ProcessTemplate.query.filter(ProcessTemplate.status != 'archived')
+        query = ProcessTemplate.query
 
         if product_name:
             query = query.filter(ProcessTemplate.product_name == product_name)
@@ -78,7 +78,7 @@ class ProcessTemplateService:
             return Response.bad_request(list(validation['errors'].values())[0])
 
         if ProcessTemplate.query.filter_by(template_code=data['template_code']).first():
-            return Response.error('模板编号已存在', 409)
+            return Response.error('模板编号已存在，如需添加版本请在模板列表中使用「新版本」功能', 409)
 
         params = data.get('params', [])
         for p in params:
