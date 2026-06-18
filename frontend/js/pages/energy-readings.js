@@ -235,15 +235,15 @@ const EnergyReadingsPage = {
     },
 
     async deleteReading(id) {
-        Modal.confirm('确认删除该抄表记录？', async () => {
-            try {
-                await EnergyService.deleteReading(id);
-                Toast.success('删除成功');
-                this.loadData();
-            } catch (e) {
-                Toast.error('删除失败');
-            }
-        });
+        const confirmed = await Modal.confirm('确认删除该抄表记录？');
+        if (!confirmed) return;
+        try {
+            await EnergyService.deleteReading(id);
+            Toast.success('删除成功');
+            this.loadData();
+        } catch (e) {
+            Toast.error('删除失败');
+        }
     },
 
     renderTable(data) {

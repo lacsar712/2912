@@ -35,6 +35,7 @@ const App = {
         'energy-metering-points': EnergyMeteringPointsPage,
         'energy-readings': EnergyReadingsPage,
         'energy-prices': EnergyPricesPage,
+        'energy-types': EnergyTypesPage,
         'customer-manage': CustomerManagePage,
         'customer-orders': CustomerOrdersPage,
         'customer-order-detail': CustomerOrderDetailPage
@@ -164,6 +165,7 @@ const App = {
             'energy-metering-points': '计量点管理',
             'energy-readings': '读数录入',
             'energy-prices': '单价配置',
+            'energy-types': '能源类型',
             'customer-manage': '客户管理',
             'customer-orders': '订单列表',
             'customer-order-detail': '订单详情'

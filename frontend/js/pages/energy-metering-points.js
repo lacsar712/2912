@@ -236,63 +236,55 @@ const EnergyMeteringPointsPage = {
                 </select>
             </div>
         `;
-        Modal.show({
+        const modal = new Modal({
             title: isEdit ? '编辑计量点' : '新增计量点',
             content: content,
-            onConfirm: () => this.savePoint(isEdit ? pointData.id : null)
-        });
-    },
-
-    async savePoint(id) {
-        const code = document.getElementById('pointCode').value.trim();
-        const name = document.getElementById('pointName').value.trim();
-        const energyTypeId = document.getElementById('pointEnergyType').value;
-        const productionLineId = document.getElementById('pointProductionLine').value;
-        const workshop = document.getElementById('pointWorkshop').value.trim();
-        const installLocation = document.getElementById('pointInstallLocation').value.trim();
-        const status = parseInt(document.getElementById('pointStatus').value);
-        if (!code) {
-            Toast.error('请输入计量点编号');
-            return;
-        }
-        if (!name) {
-            Toast.error('请输入计量点名称');
-            return;
-        }
-        if (!energyTypeId) {
-            Toast.error('请选择能源类型');
-            return;
-        }
-        const data = { point_code: code, point_name: name, energy_type_id: energyTypeId, production_line_id: productionLineId || null, workshop, location: installLocation, status };
-        try {
-            if (id) {
-                await EnergyService.updateMeteringPoint(id, data);
-                Toast.success('更新成功');
-            } else {
-                await EnergyService.createMeteringPoint(data);
-                Toast.success('创建成功');
+            width: '500px',
+            confirmText: '保存',
+            onConfirm: () => {
+                const code = document.getElementById('pointCode').value.trim();
+                const name = document.getElementById('pointName').value.trim();
+                const energyTypeId = document.getElementById('pointEnergyType').value;
+                const productionLineId = document.getElementById('pointProductionLine').value;
+                const workshop = document.getElementById('pointWorkshop').value.trim();
+                const installLocation = document.getElementById('pointInstallLocation').value.trim();
+                const status = parseInt(document.getElementById('pointStatus').value);
+                if (!code) { Toast.error('请输入计量点编号'); return false; }
+                if (!name) { Toast.error('请输入计量点名称'); return false; }
+                if (!energyTypeId) { Toast.error('请选择能源类型'); return false; }
+                const data = { point_code: code, point_name: name, energy_type_id: energyTypeId, production_line_id: productionLineId || null, workshop, location: installLocation, status };
+                const saveId = isEdit ? pointData.id : null;
+                (async () => {
+                    try {
+                        if (saveId) {
+                            await EnergyService.updateMeteringPoint(saveId, data);
+                            Toast.success('更新成功');
+                        } else {
+                            await EnergyService.createMeteringPoint(data);
+                            Toast.success('创建成功');
+                        }
+                        modal.close();
+                        this.loadData();
+                    } catch (e) {
+                        Toast.error(saveId ? '更新失败' : '创建失败');
+                    }
+                })();
+                return false;
             }
-            Modal.hide();
-            this.loadData();
-        } catch (e) {
-            Toast.error(id ? '更新失败' : '创建失败');
-        }
+        });
+        modal.show();
     },
 
     async deletePoint(id) {
-        Modal.confirm({
-            title: '确认删除',
-            content: '确定要删除该计量点吗？此操作不可撤销。',
-            onConfirm: async () => {
-                try {
-                    await EnergyService.deleteMeteringPoint(id);
-                    Toast.success('删除成功');
-                    this.loadData();
-                } catch (e) {
-                    Toast.error('删除失败');
-                }
-            }
-        });
+        const confirmed = await Modal.confirm('确定要删除该计量点吗？此操作不可撤销。');
+        if (!confirmed) return;
+        try {
+            await EnergyService.deleteMeteringPoint(id);
+            Toast.success('删除成功');
+            this.loadData();
+        } catch (e) {
+            Toast.error('删除失败');
+        }
     }
 };
 
