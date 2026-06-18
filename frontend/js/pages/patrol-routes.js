@@ -353,6 +353,7 @@ const PatrolRoutesPage = {
     },
 
     addCheckpoint() {
+        this.syncCheckpointsFromDOM();
         this.checkpoints.push({
             checkpoint_name: '',
             equipment_id: null,
@@ -364,11 +365,13 @@ const PatrolRoutesPage = {
     },
 
     removeCheckpoint(index) {
+        this.syncCheckpointsFromDOM();
         this.checkpoints.splice(index, 1);
         this.refreshCheckpoints();
     },
 
     addItem(cpIndex) {
+        this.syncCheckpointsFromDOM();
         if (!this.checkpoints[cpIndex].items) {
             this.checkpoints[cpIndex].items = [];
         }
@@ -383,6 +386,7 @@ const PatrolRoutesPage = {
     },
 
     removeItem(cpIndex, itemIndex) {
+        this.syncCheckpointsFromDOM();
         this.checkpoints[cpIndex].items.splice(itemIndex, 1);
         this.refreshCheckpoints();
     },
@@ -507,10 +511,45 @@ const PatrolRoutesPage = {
         }
     },
 
+    syncCheckpointsFromDOM() {
+        const cpCards = document.querySelectorAll('.checkpoint-card');
+        const checkpoints = [];
+
+        cpCards.forEach((card, idx) => {
+            const nameInput = card.querySelector('.cp-name');
+            const equipmentSelect = card.querySelector('.cp-equipment');
+            const locationInput = card.querySelector('.cp-location');
+            const remarkInput = card.querySelector('.cp-remark');
+
+            const items = [];
+            const itemRows = card.querySelectorAll('.item-row');
+            itemRows.forEach((row, itemIdx) => {
+                items.push({
+                    item_name: row.querySelector('.item-name').value.trim(),
+                    expected_value: row.querySelector('.item-expected').value.trim(),
+                    unit: row.querySelector('.item-unit').value.trim(),
+                    is_required: row.querySelector('.item-required').checked ? 1 : 0,
+                    item_type: row.querySelector('.item-type').value
+                });
+            });
+
+            checkpoints.push({
+                checkpoint_name: nameInput.value.trim(),
+                equipment_id: equipmentSelect.value || null,
+                location: locationInput.value.trim(),
+                remark: remarkInput.value.trim(),
+                items: items
+            });
+        });
+
+        this.checkpoints = checkpoints;
+    },
+
     bindDragEvents() {
         const cards = document.querySelectorAll('.checkpoint-card');
         cards.forEach(card => {
             card.addEventListener('dragstart', (e) => {
+                this.syncCheckpointsFromDOM();
                 this.draggedIndex = parseInt(card.dataset.index);
                 card.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';

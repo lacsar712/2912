@@ -131,7 +131,8 @@ const PatrolTasksPage = {
 
     renderRow(task, statusMap) {
         const status = statusMap[task.status] || statusMap.pending;
-        const canExecute = ['pending', 'overdue'].includes(task.status);
+        const canStart = ['pending', 'overdue'].includes(task.status);
+        const canContinue = task.status === 'in_progress';
         const canView = task.status === 'completed';
 
         return `
@@ -145,7 +146,8 @@ const PatrolTasksPage = {
                 <td><span class="badge ${status.class}">${status.text}</span></td>
                 <td>
                     <button class="btn btn-sm btn-info" onclick="PatrolTasksPage.showDetail(${task.id})">详情</button>
-                    ${canExecute ? `<button class="btn btn-sm btn-primary" onclick="PatrolTasksPage.executeTask(${task.id})">执行</button>` : ''}
+                    ${canStart ? `<button class="btn btn-sm btn-primary" onclick="PatrolTasksPage.executeTask(${task.id})">执行</button>` : ''}
+                    ${canContinue ? `<button class="btn btn-sm btn-primary" onclick="PatrolTasksPage.continueTask(${task.id})">继续执行</button>` : ''}
                     ${canView ? `<button class="btn btn-sm btn-success" onclick="PatrolTasksPage.viewResult(${task.id})">查看结果</button>` : ''}
                 </td>
             </tr>
@@ -270,6 +272,10 @@ const PatrolTasksPage = {
         } catch (error) {
             Toast.error('开始任务失败');
         }
+    },
+
+    continueTask(taskId) {
+        App.navigate(`patrol-execute?id=${taskId}`);
     },
 
     viewResult(taskId) {

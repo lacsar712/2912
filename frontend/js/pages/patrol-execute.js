@@ -46,6 +46,51 @@ const PatrolExecutePage = {
         }
     },
 
+    getDraftKey() {
+        return `patrol_draft_${this.taskId}`;
+    },
+
+    saveDraft() {
+        if (this.isView || this.task?.status === 'completed') return;
+        try {
+            const draft = {
+                results: this.results,
+                images: this.images,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(this.getDraftKey(), JSON.stringify(draft));
+        } catch (e) {
+            console.warn('保存草稿失败:', e);
+        }
+    },
+
+    loadDraft() {
+        if (this.isView || this.task?.status === 'completed') return false;
+        try {
+            const draftStr = localStorage.getItem(this.getDraftKey());
+            if (!draftStr) return false;
+            const draft = JSON.parse(draftStr);
+            if (draft.results) {
+                this.results = { ...this.results, ...draft.results };
+            }
+            if (draft.images) {
+                this.images = { ...this.images, ...draft.images };
+            }
+            return true;
+        } catch (e) {
+            console.warn('加载草稿失败:', e);
+            return false;
+        }
+    },
+
+    clearDraft() {
+        try {
+            localStorage.removeItem(this.getDraftKey());
+        } catch (e) {
+            console.warn('清除草稿失败:', e);
+        }
+    },
+
     initResults() {
         this.results = {};
         this.images = {};
@@ -66,23 +111,29 @@ const PatrolExecutePage = {
                     }
                 }
             }
-        } else {
-            if (this.task.checkpoints) {
-                for (const cp of this.task.checkpoints) {
-                    if (cp.items) {
-                        for (const item of cp.items) {
-                            const key = `${cp.id}_${item.id}`;
+        }
+        
+        if (this.task.checkpoints) {
+            for (const cp of this.task.checkpoints) {
+                if (cp.items) {
+                    for (const item of cp.items) {
+                        const key = `${cp.id}_${item.id}`;
+                        if (!this.results[key]) {
                             this.results[key] = {
                                 actual_value: '',
                                 is_abnormal: 0,
                                 remark: ''
                             };
+                        }
+                        if (!this.images[key]) {
                             this.images[key] = [];
                         }
                     }
                 }
             }
         }
+
+        this.loadDraft();
     },
 
     render() {
@@ -306,6 +357,7 @@ const PatrolExecutePage = {
 
         this.updateItemRow(key);
         this.updateProgress();
+        this.saveDraft();
     },
 
     toggleAbnormal(key) {
@@ -316,6 +368,7 @@ const PatrolExecutePage = {
         this.results[key].is_abnormal = checkbox.checked ? 1 : 0;
         this.updateItemRow(key);
         this.updateProgress();
+        this.saveDraft();
     },
 
     updateItemRow(key) {
@@ -416,6 +469,7 @@ const PatrolExecutePage = {
             }
             this.images[key].push(e.target.result);
             this.updateImagesDisplay(key);
+            this.saveDraft();
         };
         reader.readAsDataURL(file);
     },
@@ -424,6 +478,7 @@ const PatrolExecutePage = {
         if (this.images[key]) {
             this.images[key].splice(index, 1);
             this.updateImagesDisplay(key);
+            this.saveDraft();
         }
     },
 
@@ -496,6 +551,7 @@ const PatrolExecutePage = {
             const response = await PatrolService.submitTaskResult(this.taskId, { results });
             if (response.code === 200) {
                 Toast.success(response.message || '提交成功');
+                this.clearDraft();
                 App.navigate('patrol-tasks');
             } else {
                 Toast.error(response.message || '提交失败');
