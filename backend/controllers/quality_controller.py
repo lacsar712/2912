@@ -72,12 +72,13 @@ def get_orders():
     page = request.args.get('page', 1, type=int)
     size = request.args.get('size', 10, type=int)
     task_id = request.args.get('taskId', type=int)
+    task_keyword = request.args.get('taskKeyword')
     product_name = request.args.get('productName')
     overall_result = request.args.get('overallResult')
     keyword = request.args.get('keyword')
 
     return InspectionOrderService.get_orders(
-        page, size, task_id, product_name, overall_result, keyword
+        page, size, task_id, task_keyword, product_name, overall_result, keyword
     )
 
 

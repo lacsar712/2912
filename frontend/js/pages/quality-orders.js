@@ -8,6 +8,7 @@ const QualityOrdersPage = {
     total: 0,
     filters: {
         keyword: '',
+        taskKeyword: '',
         productName: '',
         overallResult: '',
         taskId: ''
@@ -23,6 +24,7 @@ const QualityOrdersPage = {
                 page: this.currentPage,
                 size: this.pageSize,
                 keyword: this.filters.keyword || undefined,
+                taskKeyword: this.filters.taskKeyword || undefined,
                 productName: this.filters.productName || undefined,
                 overallResult: this.filters.overallResult || undefined,
                 taskId: this.filters.taskId || undefined
@@ -51,23 +53,42 @@ const QualityOrdersPage = {
                 </div>
                 <div class="card-body">
                     <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
-                        <div style="display: flex; gap: 8px; align-items: center; flex: 1; min-width: 200px;">
-                            <input type="text" class="form-control" id="filterKeyword" 
-                                   placeholder="搜索质检单号/产品名" 
+                        <div style="display: flex; gap: 8px; align-items: center; min-width: 200px; flex: 1;">
+                            <label style="margin: 0; white-space: nowrap; font-size: 14px;">质检单号：</label>
+                            <input type="text" class="form-control" id="filterOrderCode" 
+                                   placeholder="请输入质检单号" 
                                    value="${this.filters.keyword}"
                                    style="flex: 1;">
                         </div>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <label style="margin: 0; white-space: nowrap;">结论：</label>
-                            <select class="form-control" id="filterResult" style="width: 100px;">
+                        <div style="display: flex; gap: 8px; align-items: center; min-width: 200px; flex: 1;">
+                            <label style="margin: 0; white-space: nowrap; font-size: 14px;">任务：</label>
+                            <input type="text" class="form-control" id="filterTask" 
+                                   placeholder="任务编号/名称" 
+                                   value="${this.filters.taskKeyword}"
+                                   style="flex: 1;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+                        <div style="display: flex; gap: 8px; align-items: center; min-width: 200px; flex: 1;">
+                            <label style="margin: 0; white-space: nowrap; font-size: 14px;">产品名称：</label>
+                            <input type="text" class="form-control" id="filterProduct" 
+                                   placeholder="请输入产品名称" 
+                                   value="${this.filters.productName}"
+                                   style="flex: 1;">
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center; min-width: 150px;">
+                            <label style="margin: 0; white-space: nowrap; font-size: 14px;">结论：</label>
+                            <select class="form-control" id="filterResult" style="width: 100px; flex: 1;">
                                 <option value="">全部</option>
                                 <option value="qualified" ${this.filters.overallResult === 'qualified' ? 'selected' : ''}>合格</option>
                                 <option value="unqualified" ${this.filters.overallResult === 'unqualified' ? 'selected' : ''}>不合格</option>
                                 <option value="pending" ${this.filters.overallResult === 'pending' ? 'selected' : ''}>待检</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary" onclick="QualityOrdersPage.search()">搜索</button>
-                        <button class="btn btn-outline" onclick="QualityOrdersPage.resetFilter()">重置</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary" onclick="QualityOrdersPage.search()">搜索</button>
+                            <button class="btn btn-outline" onclick="QualityOrdersPage.resetFilter()">重置</button>
+                        </div>
                     </div>
                     <div id="orderTable"></div>
                     <div id="pagination" class="pagination-container"></div>
@@ -165,7 +186,9 @@ const QualityOrdersPage = {
     },
 
     search() {
-        this.filters.keyword = document.getElementById('filterKeyword').value;
+        this.filters.keyword = document.getElementById('filterOrderCode').value;
+        this.filters.taskKeyword = document.getElementById('filterTask').value;
+        this.filters.productName = document.getElementById('filterProduct').value;
         this.filters.overallResult = document.getElementById('filterResult').value;
         this.currentPage = 1;
         this.loadOrders();
@@ -174,6 +197,7 @@ const QualityOrdersPage = {
     resetFilter() {
         this.filters = {
             keyword: '',
+            taskKeyword: '',
             productName: '',
             overallResult: '',
             taskId: ''

@@ -20,7 +20,7 @@ class TemplateService:
     @staticmethod
     def get_templates(page=1, size=10, keyword=None, is_active=None):
         """获取模板列表"""
-        query = InspectionTemplate.query
+        query = InspectionTemplate.query.filter(InspectionTemplate.status == 1)
 
         if keyword:
             query = query.filter(
@@ -160,13 +160,20 @@ class InspectionOrderService:
     """质检单服务类"""
 
     @staticmethod
-    def get_orders(page=1, size=10, task_id=None, product_name=None,
+    def get_orders(page=1, size=10, task_id=None, task_keyword=None, product_name=None,
                    overall_result=None, keyword=None):
         """获取质检单列表"""
-        query = InspectionOrder.query
+        query = InspectionOrder.query.filter(InspectionOrder.status == 1)
 
         if task_id:
             query = query.filter(InspectionOrder.task_id == task_id)
+        if task_keyword:
+            query = query.outerjoin(ProductionTask).filter(
+                db.or_(
+                    ProductionTask.task_code.like(f'%{task_keyword}%'),
+                    ProductionTask.task_name.like(f'%{task_keyword}%')
+                )
+            )
         if product_name:
             query = query.filter(InspectionOrder.product_name.like(f'%{product_name}%'))
         if overall_result:
@@ -349,7 +356,7 @@ class DefectService:
     @staticmethod
     def get_defects(page=1, size=10, order_id=None, defect_type=None, severity=None):
         """获取不合格记录列表"""
-        query = DefectRecord.query
+        query = DefectRecord.query.filter(DefectRecord.status == 1)
 
         if order_id:
             query = query.filter(DefectRecord.order_id == order_id)
