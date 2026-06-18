@@ -249,8 +249,27 @@ class EmployeeService:
     """员工服务类"""
 
     @staticmethod
+    def _get_descendant_department_ids(department_id):
+        """获取指定部门及其所有子部门的ID列表"""
+        departments = Department.query.filter(Department.status == 1).all()
+        dept_map = {d.id: d.parent_id if d.parent_id else 0 for d in departments}
+
+        ids = set()
+        ids.add(department_id)
+
+        changed = True
+        while changed:
+            changed = False
+            for dept_id, parent_id in dept_map.items():
+                if parent_id in ids and dept_id not in ids:
+                    ids.add(dept_id)
+                    changed = True
+
+        return list(ids)
+
+    @staticmethod
     def get_page(page=1, size=10, keyword=None, department_id=None, position_id=None, employee_status=None):
-        """分页获取员工列表"""
+        """分页获取员工列表（父部门包含子部门员工）"""
         query = Employee.query.filter(Employee.status == 1)
 
         if keyword:
@@ -261,7 +280,8 @@ class EmployeeService:
                 (Employee.email.like(f'%{keyword}%'))
             )
         if department_id:
-            query = query.filter(Employee.department_id == department_id)
+            dept_ids = EmployeeService._get_descendant_department_ids(department_id)
+            query = query.filter(Employee.department_id.in_(dept_ids))
         if position_id:
             query = query.filter(Employee.position_id == position_id)
         if employee_status:
@@ -718,26 +738,52 @@ class StatisticsService:
     """统计服务类"""
 
     @staticmethod
+    def _get_all_children_ids(department_ids, departments_map, parent_id):
+        """递归获取部门及其所有子部门ID"""
+        ids = [parent_id]
+        for dept_id, dept in departments_map.items():
+            if dept['parent_id'] == parent_id:
+                ids.extend(StatisticsService._get_all_children_ids(department_ids, departments_map, dept_id))
+        return ids
+
+    @staticmethod
     def get_employee_count_by_department():
-        """按部门统计在职人数"""
+        """按部门统计在职人数（父部门包含子部门人数）"""
         departments = Department.query.filter(
             Department.status == 1
         ).order_by(Department.sort_order).all()
 
-        result = []
+        dept_ids = [d.id for d in departments]
+        departments_map = {d.id: {
+            'id': d.id,
+            'dept_code': d.dept_code,
+            'dept_name': d.dept_name,
+            'parent_id': d.parent_id if d.parent_id else 0
+        } for d in departments}
+
+        direct_count = {}
         for dept in departments:
             count = Employee.query.filter(
                 Employee.department_id == dept.id,
                 Employee.employee_status == 'active',
                 Employee.status == 1
             ).count()
+            direct_count[dept.id] = count
+
+        result = []
+        for dept in departments:
+            cumulative_count = 0
+            all_child_ids = StatisticsService._get_all_children_ids(dept_ids, departments_map, dept.id)
+            for cid in all_child_ids:
+                cumulative_count += direct_count.get(cid, 0)
 
             result.append({
                 'department_id': dept.id,
                 'department_code': dept.dept_code,
                 'department_name': dept.dept_name,
-                'parent_id': dept.parent_id,
-                'employee_count': count
+                'parent_id': departments_map[dept.id]['parent_id'],
+                'employee_count': cumulative_count,
+                'direct_employee_count': direct_count[dept.id]
             })
 
         def build_tree(items, parent_id=0):

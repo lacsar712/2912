@@ -36,21 +36,41 @@ class Department(BaseModel):
 
     @staticmethod
     def get_tree():
-        """获取部门树"""
+        """获取部门树（含累计人数，父部门包含子部门人数）"""
         departments = Department.query.filter(
             Department.status == 1
         ).order_by(Department.sort_order).all()
 
         dept_dict = {d.id: d.to_dict() for d in departments}
-        tree = []
 
         for dept in departments:
-            dept_dict[dept.id]['member_count'] = Employee.query.filter(
+            dept_dict[dept.id]['direct_member_count'] = Employee.query.filter(
                 Employee.department_id == dept.id,
                 Employee.employee_status == 'active',
                 Employee.status == 1
             ).count()
+            dept_dict[dept.id]['member_count'] = dept_dict[dept.id]['direct_member_count']
 
+        children_map = {}
+        for dept in departments:
+            pid = dept.parent_id if dept.parent_id else 0
+            if pid not in children_map:
+                children_map[pid] = []
+            children_map[pid].append(dept.id)
+
+        def accumulate_count(dept_id):
+            count = dept_dict[dept_id]['direct_member_count']
+            for child_id in children_map.get(dept_id, []):
+                count += accumulate_count(child_id)
+            dept_dict[dept_id]['member_count'] = count
+            return count
+
+        root_ids = children_map.get(0, [])
+        for root_id in root_ids:
+            accumulate_count(root_id)
+
+        tree = []
+        for dept in departments:
             if dept.parent_id == 0:
                 dept_dict[dept.id]['children'] = []
                 tree.append(dept_dict[dept.id])
