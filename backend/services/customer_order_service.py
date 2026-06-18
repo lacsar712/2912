@@ -155,9 +155,10 @@ class OrderService:
         for o in pagination.items:
             o_dict = o.to_dict()
             if delay_risk is not None and delay_risk != '':
-                if str(delay_risk).lower() == 'true' and not o_dict.get('delay_risk'):
+                dr = o_dict.get('delay_risk', False)
+                if str(delay_risk) == '1' and not dr:
                     continue
-                if str(delay_risk).lower() == 'false' and o_dict.get('delay_risk'):
+                if str(delay_risk) == '0' and dr:
                     continue
             items.append(o_dict)
 
@@ -179,6 +180,7 @@ class OrderService:
             OrderProductionTask.status == 1
         ).order_by(OrderProductionTask.create_time.desc()).all()
         result['task_links'] = [tl.to_dict() for tl in task_links]
+        result['production_tasks'] = result['task_links']
 
         deliveries = Delivery.query.filter(
             Delivery.order_id == order_id,

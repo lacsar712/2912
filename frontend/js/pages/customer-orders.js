@@ -270,7 +270,7 @@ const CustomerOrdersPage = {
     },
 
     renderOrderRow(o) {
-        const statusInfo = this.STATUS_MAP[o.status] || { text: o.status, color: 'info' };
+        const statusInfo = this.STATUS_MAP[o.order_status] || { text: o.order_status, color: 'info' };
         const customerName = this.getCustomerName(o.customer_id);
         const amount = (o.quantity || 0) * (o.unit_price || 0);
         const completion = o.completion_rate !== undefined && o.completion_rate !== null ? o.completion_rate : 0;
@@ -304,7 +304,7 @@ const CustomerOrdersPage = {
     },
 
     renderProgressBar(rate) {
-        const percent = Math.min(100, Math.max(0, rate * 100));
+        const percent = Math.min(100, Math.max(0, rate));
         let color = 'var(--primary-color)';
         if (percent >= 100) color = 'var(--success-color)';
         else if (percent < 30) color = 'var(--warning-color)';
@@ -320,11 +320,12 @@ const CustomerOrdersPage = {
     },
 
     renderOrderActions(o) {
-        const isPending = o.status === 'pending';
-        const canApprove = o.status === 'pending';
-        const canCancel = o.status === 'pending' || o.status === 'approved' || o.status === 'in_production';
-        const canSplit = o.status === 'approved' || o.status === 'in_production';
-        const canDelivery = o.status === 'in_production' || o.status === 'partial_shipped' || o.status === 'approved';
+        const orderStatus = o.order_status;
+        const isPending = orderStatus === 'pending';
+        const canApprove = orderStatus === 'pending';
+        const canCancel = orderStatus === 'pending' || orderStatus === 'approved' || orderStatus === 'in_production';
+        const canSplit = orderStatus === 'approved' || orderStatus === 'in_production';
+        const canDelivery = orderStatus === 'in_production' || orderStatus === 'partial_shipped' || orderStatus === 'approved';
 
         let buttons = `
             <button class="btn btn-sm btn-outline" onclick="CustomerOrdersPage.goToDetail(${o.id})">详情</button>
@@ -360,8 +361,8 @@ const CustomerOrdersPage = {
         const ordersByStatus = {};
         this.LANE_STATUSES.forEach(s => ordersByStatus[s] = []);
         this.orders.forEach(o => {
-            if (ordersByStatus[o.status]) {
-                ordersByStatus[o.status].push(o);
+            if (ordersByStatus[o.order_status]) {
+                ordersByStatus[o.order_status].push(o);
             }
         });
 

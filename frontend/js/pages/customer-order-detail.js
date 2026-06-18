@@ -78,9 +78,9 @@ const CustomerOrderDetailPage = {
             return;
         }
 
-        const statusInfo = this.STATUS_MAP[o.status] || { text: o.status, color: 'info' };
+        const statusInfo = this.STATUS_MAP[o.order_status] || { text: o.order_status, color: 'info' };
         const completion = o.completion_rate !== undefined && o.completion_rate !== null ? o.completion_rate : 0;
-        const completionPercent = Math.min(100, Math.max(0, completion * 100));
+        const completionPercent = Math.min(100, Math.max(0, completion));
         const isDelayRisk = o.delay_risk;
         const amount = (o.quantity || 0) * (o.unit_price || 0);
 
@@ -339,20 +339,21 @@ const CustomerOrderDetailPage = {
 
     renderActionButtons(o) {
         const buttons = [];
+        const orderStatus = o.order_status;
 
-        if (o.status === 'pending') {
+        if (orderStatus === 'pending') {
             buttons.push(`<button class="btn btn-success" onclick="CustomerOrderDetailPage.approveOrder()">审核</button>`);
         }
 
-        if (o.status === 'approved' || o.status === 'in_production') {
+        if (orderStatus === 'approved' || orderStatus === 'in_production') {
             buttons.push(`<button class="btn btn-primary" onclick="CustomerOrderDetailPage.showSplitOrderModal()">拆单</button>`);
         }
 
-        if (o.status === 'in_production' || o.status === 'partial_shipped' || o.status === 'approved') {
+        if (orderStatus === 'in_production' || orderStatus === 'partial_shipped' || orderStatus === 'approved') {
             buttons.push(`<button class="btn btn-info" onclick="CustomerOrderDetailPage.showDeliveryModal()">发货</button>`);
         }
 
-        if (o.status === 'pending' || o.status === 'approved' || o.status === 'in_production') {
+        if (orderStatus === 'pending' || orderStatus === 'approved' || orderStatus === 'in_production') {
             buttons.push(`<button class="btn btn-warning" onclick="CustomerOrderDetailPage.cancelOrder()">取消订单</button>`);
         }
 
